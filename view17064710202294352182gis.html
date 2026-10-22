@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+
+<head>
+    <title>DBeaver GIS viewer - Leaflet</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" href="inc/leaflet.css" />
+    <script src="inc/leaflet.js"></script>
+    <script src="inc/leaflet-lasso.min.js"></script>
+    <script src="inc/wkx.min.js"></script>
+
+    <style>
+        .leaflet-touch .leaflet-control-layers-toggle {
+            background-image: url(inc/layers.png);
+            width: 30px;
+            height: 30px;
+        }
+        .leaflet-tooltip {
+            border-color: #008fcf;
+        }
+    </style>
+</head>
+
+<body style="height: 100%; margin: 0;">
+
+    <div id="gisMap" style="width: 100%; height: 100%;"></div>
+    <script>
+        var sourceValues = [ 'POINT (-3.756737 43.38966)','POINT (-3.756612 43.389525)','POINT (-3.754285 43.389277)','POINT (-3.75554 43.388117)','POINT (-3.755077 43.387172)','POINT (-3.75515 43.382722)','POINT (-3.753577 43.37935)','POINT (-3.753912 43.376125)','POINT (-3.76368 43.370692)','POINT (-3.770115 43.368075)','POINT (-3.77444 43.367767)','POINT (-3.775192 43.367192)','POINT (-3.778822 43.364015)','POINT (-3.778617 43.363342)','POINT (-3.779822 43.36251)','POINT (-3.780807 43.36232)','POINT (-3.780853 43.362545)','POINT (-3.783242 43.36431)','POINT (-3.782282 43.364305)','POINT (-3.782497 43.364742)','POINT (-3.787542 43.36661)','POINT (-3.788242 43.36614)','POINT (-3.788355 43.36531)','POINT (-3.788497 43.364817)','POINT (-3.789602 43.363595)','POINT (-3.789947 43.363402)','POINT (-3.798987 43.362337)','POINT (-3.800592 43.362922)','POINT (-3.800857 43.363317)','POINT (-3.807735 43.359887)','POINT (-3.810707 43.358102)','POINT (-3.818487 43.358967)','POINT (-3.81863 43.358752)','POINT (-3.81849 43.360315)','POINT (-3.82242 43.356042)','POINT (-3.825295 43.355042)','POINT (-3.824977 43.354227)','POINT (-3.825277 43.35403)','POINT (-3.825882 43.353267)','POINT (-3.825167 43.350195)','POINT (-3.824552 43.349032)','POINT (-3.823745 43.347002)','POINT (-3.821512 43.346257)','POINT (-3.821757 43.344272)','POINT (-3.819187 43.339892)','POINT (-3.820447 43.336932)','POINT (-3.819347 43.335107)','POINT (-3.820147 43.33427)','POINT (-3.820575 43.33343)','POINT (-3.820985 43.331365)','POINT (-3.819892 43.329957)','POINT (-3.819147 43.330335)','POINT (-3.81662 43.328737)','POINT (-3.81609 43.329087)','POINT (-3.813522 43.319852)','POINT (-3.813375 43.320225)','POINT (-3.812767 43.322052)','POINT (-3.812122 43.32344)','POINT (-3.812367 43.324212)','POINT (-3.812855 43.32548)','POINT (-3.810378 43.32741)','POINT (-3.802815 43.330065)','POINT (-3.800557 43.326892)','POINT (-3.79749 43.322992)','POINT (-3.77414 43.319485)','POINT (-3.76307 43.33188)','POINT (-3.76284 43.33224)','POINT (-3.759485 43.334525)','POINT (-3.759 43.334355)','POINT (-3.754627 43.33542)','POINT (-3.754832 43.335952)','POINT (-3.750808 43.334277)','POINT (-3.75073 43.333602)','POINT (-3.744012 43.338547)','POINT (-3.74446 43.339587)','POINT (-3.743797 43.344352)','POINT (-3.743735 43.345172)','POINT (-3.742365 43.345505)','POINT (-3.742307 43.34525)','POINT (-3.742312 43.345412)','POINT (-3.737847 43.32757)','POINT (-3.729135 43.323687)','POINT (-3.72482 43.322647)','POINT (-3.721912 43.322362)','POINT (-3.721815 43.322512)','POINT (-3.714692 43.322157)','POINT (-3.71253 43.322162)','POINT (-3.710922 43.321897)','POINT (-3.7064 43.32553)','POINT (-3.706367 43.325387)','POINT (-3.706325 43.325497)','POINT (-3.70423 43.326437)','POINT (-3.704222 43.32863)','POINT (-3.702922 43.329617)','POINT (-3.702757 43.329695)','POINT (-3.702125 43.340432)','POINT (-3.69921 43.344445)','POINT (-3.706777 43.352747)','POINT (-3.724047 43.355657)','POINT (-3.725375 43.356377)','POINT (-3.728942 43.356365)','POINT (-3.729657 43.3562)','POINT (-3.735365 43.356132)','POINT (-3.741465 43.356507)','POINT (-3.743145 43.357007)','POINT (-3.752917 43.356852)','POINT (-3.75282 43.359777)','POINT (-3.752545 43.361797)','POINT (-3.754525 43.365892)','POINT (-3.753787 43.367537)','POINT (-3.75397 43.369117)','POINT (-3.753347 43.375827)','POINT (-3.753785 43.37852)','POINT (-3.75898 43.383937)','POINT (-3.759477 43.384472)','POINT (-3.7592 43.388775)','POINT (-3.756767 43.389612)' ];
+        var sourceTips = [ {"id":"point","color":"#0000ff","info":{"seq":"0","elevacion":"53.25699996948242","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"1","elevacion":"53.2239990234375","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"2","elevacion":"64.30899810791016","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"4","elevacion":"62.70199966430664","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"6","elevacion":"71.4990005493164","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"9","elevacion":"50.09400177001953","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"14","elevacion":"57.26499938964844","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"16","elevacion":"51.202999114990234","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"25","elevacion":"150.22999572753906","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"33","elevacion":"102.08200073242188","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"36","elevacion":"108.84200286865234","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"37","elevacion":"107.70800018310547","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"40","elevacion":"113.3489990234375","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"41","elevacion":"111.76300048828125","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"43","elevacion":"117.32099914550781","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"44","elevacion":"115.11799621582031","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"45","elevacion":"116.18900299072266","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"50","elevacion":"105.3219985961914","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"52","elevacion":"119.48799896240234","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"53","elevacion":"118.63600158691406","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"57","elevacion":"127.55999755859375","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"58","elevacion":"124.9469985961914","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"60","elevacion":"132.8090057373047","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"61","elevacion":"127.26200103759766","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"62","elevacion":"131.27999877929688","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"63","elevacion":"130.09800720214844","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"68","elevacion":"171.52999877929688","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"70","elevacion":"166.94900512695312","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"71","elevacion":"175.40199279785156","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"77","elevacion":"151.95799255371094","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"82","elevacion":"156.5240020751953","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"88","elevacion":"134.5919952392578","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"89","elevacion":"134.77999877929688","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"93","elevacion":"130.18499755859375","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"100","elevacion":"143.7689971923828","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"102","elevacion":"122.32499694824219","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"104","elevacion":"129.6479949951172","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"105","elevacion":"129.42999267578125","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"106","elevacion":"131.22300720214844","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"114","elevacion":"108.31099700927734","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"116","elevacion":"113.47200012207031","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"118","elevacion":"102.30899810791016","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"121","elevacion":"106.60700225830078","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"122","elevacion":"99.95099639892578","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"125","elevacion":"109.7770004272461","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"129","elevacion":"97.54100036621094","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"132","elevacion":"105.81099700927734","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"133","elevacion":"101.41500091552734","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"134","elevacion":"102.54199981689453","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"136","elevacion":"97.34600067138672","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"140","elevacion":"99.197998046875","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"141","elevacion":"99.18499755859375","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"148","elevacion":"123.3479995727539","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"149","elevacion":"122.48400115966797","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"172","elevacion":"285.16400146484375","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"173","elevacion":"282.9729919433594","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"175","elevacion":"292.1579895019531","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"177","elevacion":"286.5249938964844","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"178","elevacion":"286.9729919433594","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"182","elevacion":"276.73199462890625","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"185","elevacion":"289.5690002441406","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"210","elevacion":"139.92999267578125","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"215","elevacion":"153.32400512695312","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"220","elevacion":"148.6840057373047","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"247","elevacion":"472.8970031738281","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"263","elevacion":"305.3450012207031","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"264","elevacion":"305.89300537109375","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"267","elevacion":"271.3580017089844","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"269","elevacion":"274.4750061035156","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"277","elevacion":"232.3820037841797","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"278","elevacion":"233.9510040283203","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"285","elevacion":"166.96299743652344","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"287","elevacion":"167.5970001220703","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"300","elevacion":"88.34500122070312","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"301","elevacion":"89.26899719238281","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"308","elevacion":"82.10399627685547","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"309","elevacion":"82.16999816894531","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"311","elevacion":"81.18800354003906","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"313","elevacion":"82.04000091552734","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"315","elevacion":"81.30799865722656","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"356","elevacion":"297.3429870605469","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"363","elevacion":"252.25900268554688","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"364","elevacion":"268.9580078125","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"367","elevacion":"256.16900634765625","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"368","elevacion":"256.82598876953125","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"376","elevacion":"197.78500366210938","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"378","elevacion":"210.2100067138672","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"379","elevacion":"208.8489990234375","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"388","elevacion":"289.65301513671875","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"389","elevacion":"289.48199462890625","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"390","elevacion":"290.1390075683594","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"395","elevacion":"270.0790100097656","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"398","elevacion":"289.385009765625","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"401","elevacion":"265.6440124511719","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"402","elevacion":"266.64898681640625","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"421","elevacion":"95.19300079345703","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"424","elevacion":"103.1259994506836","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"437","elevacion":"54.189998626708984","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"455","elevacion":"182.16900634765625","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"457","elevacion":"176.74600219726562","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"458","elevacion":"181.47900390625","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"459","elevacion":"180.81700134277344","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"462","elevacion":"195.38699340820312","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"467","elevacion":"162.50999450683594","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"469","elevacion":"164.15199279785156","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"478","elevacion":"76.22699737548828","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"480","elevacion":"87.33200073242188","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"483","elevacion":"61.027000427246094","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"490","elevacion":"93.21299743652344","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"491","elevacion":"93.08499908447266","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"494","elevacion":"107.58699798583984","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"499","elevacion":"51.369998931884766","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"501","elevacion":"59.88199996948242","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"508","elevacion":"41.95000076293945","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"509","elevacion":"42.439998626708984","tipo_extremo":"M"}},{"id":"point","color":"#0000ff","info":{"seq":"515","elevacion":"32.858001708984375","tipo_extremo":"m"}},{"id":"point","color":"#0000ff","info":{"seq":"520","elevacion":"52.98099899291992","tipo_extremo":"M"}} ];
+        var geomSRID = 4326;
+
+        var wkx = require('wkx');
+        var geoMap = L.map('gisMap', {
+            crs: L.CRS.EPSG3857
+        });
+
+        if (true) {
+            let baseLayersObj = {
+                'Street': L.tileLayer('https://tms-mapa-raster.ign.es/1.0.0/mapa-raster/{z}/{x}/{-y}.jpeg',{
+maxZoom: 23,  minZoom: 1,visibility: true,
+    attribution: '© Instituto Geográfico Nacional'}),
+                'Topography': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+                  {
+                    maxZoom: 17,
+                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>,' +
+                      ' &copy; <a href="http://viewfinderpanoramas.org" target="_blank">SRTM</a>,' +
+                      ' &copy; <a href="https://opentopomap.org" target="_blank">OpenTopoMap</a>',
+                  }),
+            };
+            L.control.layers(baseLayersObj).addTo(geoMap);
+
+            L.tileLayer('https://tms-mapa-raster.ign.es/1.0.0/mapa-raster/{z}/{x}/{-y}.jpeg',{
+maxZoom: 23,  minZoom: 1,visibility: true,
+    attribution: '© Instituto Geográfico Nacional'}).addTo(geoMap);
+        }
+
+        if (typeof setClipboardContents !== 'undefined') {
+            // This way we can tell whether we're running within DBeaver.
+            // If not, just don't bother overriding context menu behavior.
+            geoMap.on('contextmenu', function (event) {
+                let actions = [
+                    ['Copy coordinates', 'setClipboardContents(\'' + event.latlng.lat + ', ' + event.latlng.lng + '\')'],
+                    ['Copy viewport bounds', 'setClipboardContents(\'' + geoMap.getBounds().toBBoxString() + '\')'],
+                ];
+
+                if (typeof selection !== 'undefined' && selection.length > 0) {
+                    let bounds = selection[0].layer.getBounds();
+                    for (let i = 1; i < selection.length; i++) {
+                        bounds.extend(selection[i].layer.getBounds());
+                    }
+                    actions.push(['Copy selection bounds', 'setClipboardContents(\'' + bounds.toBBoxString() + '\')']);
+                }
+
+                let content = '';
+                for (let i = 0; i < actions.length; i++) {
+                    let action = actions[i];
+                    content += '<a href="javascript:' + action[1] + ';geoMap.closePopup();undefined;">';
+                    content += action[0];
+                    content += '</a>';
+                    if (i < actions.length - 1) {
+                        content += '<br/>';
+                    }
+                }
+
+                L.popup()
+                    .setLatLng(event.latlng)
+                    .setContent(content)
+                    .openOn(geoMap);
+            });
+        }
+
+        const geojsonMarkerOptions = {
+            radius: 4,
+            weight: 3,
+        };
+        const popupOption = {
+            closeButton: true,
+            minWidth: 260,
+            maxWidth: 800,
+            maxHeight: 500,
+        };
+
+        var lastClickCoordinates = "";
+        function onEachFeature(feature, layer) {
+            var tip = feature.tip;
+            if (tip != null) {
+                var tipText = "";
+                if (tip.id != null) {
+                    var color = tip.color;
+                    if (color == null) color = "black";
+                    tipText += "<h3 style='color:" + color + "'>" + tip.id + "</h3>";
+                }
+                var objInfo = tip.info;
+                if (objInfo != null && Object.keys(objInfo).length > 0) {
+                    tipText += "<table>";
+                    for (var propName in objInfo) {
+                        tipText += "<tr><td>" + propName + "</td><td>" + objInfo[propName] + "</td></tr>";
+                    }
+                    tipText += "</table>";
+                } else {
+                    tipText += "<i>No information present</i>";
+                }
+                layer.bindPopup(tipText, popupOption);
+                if (typeof tip.name !== 'undefined') {
+                    layer.bindTooltip(tip.name, {permanent: true});
+                }
+            }
+        }
+
+        function polyStyle(feature) {
+            var objColor = 'blue';
+            if (feature.geometry.tip && feature.geometry.tip.color) objColor = feature.geometry.tip.color;
+            return {
+                weight: 2,
+                color: objColor,
+            };
+        }
+
+        var vectorLayer = L.geoJSON([], {
+            style: polyStyle,
+            pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng, geojsonMarkerOptions);
+            },
+            onEachFeature: onEachFeature
+        });
+        vectorLayer.addTo(geoMap);
+
+        if (true) {
+            // Make streetview active
+            var layerControlElement = document.getElementsByClassName('leaflet-control-layers')[0];
+            layerControlElement.getElementsByTagName('input')[0].click();
+        }
+
+        for (i = 0; i < sourceValues.length; i++) {
+            var geomValue = sourceValues[i];
+
+            var polyTest = wkx.Geometry.parse(geomValue);
+            var geoJSON = polyTest.toGeoJSON();
+            geoJSON.tip = sourceTips[i];
+            vectorLayer.addData(geoJSON);
+        }
+
+        var bounds = vectorLayer.getBounds();
+
+        if ('EPSG3857' == 'Simple') {
+            let maxDimension = Math.max(bounds.getNorth() - bounds.getSouth(), bounds.getEast() - bounds.getWest());
+            geoMap.setMinZoom(-5); // Small enough?
+            if (maxDimension > 0) {
+                geoMap.fitBounds(bounds);
+            } else {
+                geoMap.setView(bounds.getCenter(), geoMap.getZoom());
+            }
+        } else {
+            let geomBounds = undefined;
+            geoMap.fitBounds(geomBounds === undefined ? bounds : geomBounds);
+            geoMap.setZoom(Math.min(geoMap.getZoom(), 18), {animate: false});
+        }
+
+        function showTools(toolsVisible) {
+            var elementsVisibility = toolsVisible ? 'visible' : 'hidden';
+            document.getElementsByClassName('leaflet-control-container')[0].style.visibility=elementsVisibility;
+        }
+
+        function showLabels(visible) {
+            let elements = document.getElementsByClassName('leaflet-tooltip');
+            let visibility = visible ? 'visible' : 'hidden';
+            for (let i = 0; i < elements.length; i++) {
+                elements[i].style.visibility = visibility;
+            }
+        }
+
+        if (typeof setPresentationSelection !== 'undefined') {
+            var selection = [];
+
+            function addSelection(target, layer, keepSelection) {
+                let index = -1;
+
+                for (let i = 0; i < selection.length; i++) {
+                    if (selection[i].target === target && selection[i].layer === layer) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                if (index < 0 || keepSelection) {
+                    layer.setStyle({color: '#ff4620', dashArray: '4'});
+                    selection.push({target: target, layer: layer});
+                } else {
+                    target.resetStyle(layer);
+                    selection.splice(index, 1);
+                }
+            }
+
+            function clearSelection() {
+                while (selection.length > 0) {
+                    let object = selection.pop();
+                    object.target.resetStyle(object.layer);
+                }
+            }
+
+            function fireSelectionChanged() {
+                setPresentationSelection(selection.map(function (value) {
+                    return value.layer.feature.geometry.tip.location;
+                }));
+            }
+
+            vectorLayer.on('click', function(e) {
+                if (e.originalEvent.ctrlKey !== true) {
+                    clearSelection();
+                }
+                if (selection.length > 0) {
+                    geoMap.closePopup();
+                }
+                addSelection(e.target, e.layer);
+                fireSelectionChanged();
+            });
+
+            geoMap.on('click', function (e) {
+                if (e.originalEvent.ctrlKey !== true) {
+                    clearSelection();
+                    fireSelectionChanged();
+                }
+            });
+
+            geoMap.on('keydown', function (e) {
+                if (e.originalEvent.keyCode === 27) {
+                    clearSelection();
+                    fireSelectionChanged();
+                    geoMap.closePopup();
+                }
+            });
+
+            geoMap.on('lasso.finished', function (e) {
+                if (e.originalEvent.ctrlKey !== true) {
+                    clearSelection();
+                }
+                e.layers.forEach(function (layer) {
+                    addSelection(vectorLayer, layer, true);
+                });
+                fireSelectionChanged();
+            });
+
+            L.control.lasso({ intersect: true }).addTo(geoMap);
+        }
+
+        showTools(true);
+        showLabels(true);
+    </script>
+</body>
+
+</html>
